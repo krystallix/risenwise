@@ -1,9 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 
-export const createClient = (request: NextRequest) => {
+export const updateSession = async (request: NextRequest) => {
     let supabaseResponse = NextResponse.next({
-        request: { headers: request.headers },
+        request: {
+            headers: request.headers,
+        },
     })
 
     const supabase = createServerClient(
@@ -15,9 +17,7 @@ export const createClient = (request: NextRequest) => {
                     return request.cookies.getAll()
                 },
                 setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) =>
-                        request.cookies.set(name, value)
-                    )
+                    cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
                     supabaseResponse = NextResponse.next({
                         request,
                     })
@@ -26,11 +26,30 @@ export const createClient = (request: NextRequest) => {
                     )
                 },
             },
-            db: {
-                schema: 'risenwise'
-            }
         }
     )
 
-    return { supabase, supabaseResponse }
+    const {
+        data: { user },
+    } = await supabase.auth.getUser()
+
+    if (
+        !user &&
+        !request.nextUrl.pathname.startsWith('/login')
+    ) {
+        // no user, potentially respond by redirecting the user to the login page
+        const url = request.nextUrl.clone()
+        url.pathname = '/login'
+        return NextResponse.redirect(url)
+    }
+
+    if (user) {
+        if (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname === '/') {
+            const url = request.nextUrl.clone()
+            url.pathname = '/dashboard'
+            return NextResponse.redirect(url)
+        }
+    }
+
+    return supabaseResponse
 }

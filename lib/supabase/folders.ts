@@ -14,6 +14,7 @@ export async function createFolder(
         .insert({
             name,
             icon,
+            is_active: true,
             parent_id: parentId,
             position
         })
@@ -70,4 +71,19 @@ export async function getFavorites() {
 
     if (error) throw error
     return data as Folder[]
+}
+
+
+export async function reorderFolders(updates: { id: string; position: number }[]) {
+    const promises = updates.map(({ id, position }) =>
+        supabase
+            .from('folders')
+            .update({ position })
+            .eq('id', id)
+    )
+
+    const results = await Promise.all(promises)
+
+    const error = results.find(r => r.error)?.error
+    if (error) throw error
 }

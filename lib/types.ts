@@ -5,6 +5,7 @@ export interface Folder {
     parent_id: string | null
     position: number
     is_favorite: boolean
+    is_active: boolean
     created_at: string
     user_id: string
 }
@@ -12,6 +13,7 @@ export interface Folder {
 export interface Item {
     id: string
     name: string
+    description: string
     icon: string
     folder_id: string | null
     content: any

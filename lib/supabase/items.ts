@@ -14,6 +14,7 @@ export async function createItem(
         .insert({
             name,
             icon,
+            description: '',
             folder_id: folderId,
             content: { type: 'doc', content: [] },
             position
@@ -134,4 +135,18 @@ export async function getArchivedItems() {
 
     if (error) throw error
     return data as Item[]
+}
+
+export async function reorderItems(updates: { id: string; position: number; folder_id: string | null }[]) {
+    const promises = updates.map(({ id, position, folder_id }) =>
+        supabase
+            .from('items')
+            .update({ position, folder_id })
+            .eq('id', id)
+    )
+
+    const results = await Promise.all(promises)
+
+    const error = results.find(r => r.error)?.error
+    if (error) throw error
 }
