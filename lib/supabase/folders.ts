@@ -53,6 +53,7 @@ export async function getFolders(parentId: string | null = null) {
     const query = supabase
         .from('folders')
         .select('*')
+        .is('deleted_at', null)
         .order('position')
 
     const { data, error } = parentId === null
@@ -68,6 +69,7 @@ export async function getFavorites() {
         .from('folders')
         .select('*')
         .eq('is_favorite', true)
+        .is('deleted_at', null)
 
     if (error) throw error
     return data as Folder[]

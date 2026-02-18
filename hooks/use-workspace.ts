@@ -12,7 +12,7 @@ interface WorkspaceStore {
     folders: Folder[]
     items: Item[]
     pendingOperations: Map<string, PendingOperation>
-
+    lastDeletedAt: number | null
     // Folder operations
     createFolder: (name: string, icon: string, parentId?: string | null) => Promise<void>
     updateFolder: (id: string, updates: Partial<Folder>) => Promise<void>
@@ -37,11 +37,22 @@ interface WorkspaceStore {
     removePending: (id: string) => void
 }
 
+export function useItems() {
+    const items = useWorkspace(state => state.items)
+
+    const getItemNameById = (id: string) => {
+        const item = items.find(i => i.id === id)
+        return item?.name || id.slice(0, 8) + "..."
+    }
+
+    return { items, getItemNameById }
+}
+
 export const useWorkspace = create<WorkspaceStore>((set, get) => ({
     folders: [],
     items: [],
     pendingOperations: new Map(),
-
+    lastDeletedAt: null,
     setPending: (id, operation) => {
         set(state => {
             const newMap = new Map(state.pendingOperations)
@@ -158,7 +169,8 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
             await folderQueries.deleteFolder(id)
 
             get().removePending(id)
-            toast.success("Folder deleted successfully")
+            set({ lastDeletedAt: Date.now() })
+            toast.success("Folder moved to trash")
 
         } catch (error) {
             console.error('Failed to delete folder:', error)
@@ -296,7 +308,8 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
             await itemQueries.deleteItem(id)
 
             get().removePending(id)
-            toast.success("Document deleted successfully")
+            set({ lastDeletedAt: Date.now() })
+            toast.success("Document moved to trash")
 
         } catch (error) {
             console.error('Failed to delete item:', error)

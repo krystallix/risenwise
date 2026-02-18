@@ -97,6 +97,7 @@ export async function getItems(folderId?: string | null, includeArchived: boolea
     let query = supabase
         .from('items')
         .select('*')
+        .is('deleted_at', null)
         .order('position')
 
     if (!includeArchived) {

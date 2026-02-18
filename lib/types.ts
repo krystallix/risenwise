@@ -8,6 +8,8 @@ export interface Folder {
     is_active: boolean
     created_at: string
     user_id: string
+    updated_at?: string | null
+    deleted_at?: string | null
 }
 
 export interface Item {
@@ -22,10 +24,21 @@ export interface Item {
     is_archived: boolean
     created_at: string
     user_id: string
+    updated_at?: string | null
+    deleted_at?: string | null
 }
 
 export interface PendingOperation {
     id: string
     type: 'create' | 'update' | 'delete'
     status: 'pending' | 'success' | 'error'
+}
+
+export interface TrashItem {
+    id: string
+    name: string
+    deleted_at: string
+    icon?: string
+    type: 'item' | 'folder'
+    folder_id?: string | null
 }
