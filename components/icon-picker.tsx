@@ -21,7 +21,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                 const searchLower = searchTerm.toLowerCase()
                 return name.toLowerCase().includes(searchLower)
             })
-            .slice(0, 28)
+            .slice(0, 49)
     }, [searchTerm])
 
     const SelectedIconComponent = (icons as any)[value] as LucideIcon
@@ -45,7 +45,7 @@ export function IconPicker({ value, onChange }: IconPickerProps) {
                         value={searchTerm}
                         onValueChange={setSearchTerm}
                     />
-                    <CommandList className="max-h-[300px]">
+                    <CommandList className="max-h-[150px] overflow-y-auto">
                         {iconList.length > 0 ? (
                             <CommandGroup>
                                 <div className="grid grid-cols-7 gap-1 p-2">

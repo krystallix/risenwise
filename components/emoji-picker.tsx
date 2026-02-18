@@ -19,32 +19,17 @@ export function EmojiPickerComponent({ value, onChange }: EmojiPickerComponentPr
     }
 
     return (
-        <Popover open={open} onOpenChange={setOpen} modal={false}>
+        <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start">
+                <Button
+                    variant="ghost"
+                    className="text-2xl h-12 w-12 p-2 rounded-full bg-accent hover:bg-accent/80 cursor-pointer"
+                >
                     {value}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent
-                className="w-full p-0 border-0"
-                align="start"
-                side="right"
-                sideOffset={5}
-                onOpenAutoFocus={(e) => e.preventDefault()}
-            >
-                <div className="overflow-hidden rounded-lg">
-                    <EmojiPicker
-                        onEmojiClick={handleEmojiClick}
-                        theme={Theme.AUTO}
-                        searchPlaceHolder="Search emoji..."
-                        width={350}
-                        height={400}
-                        previewConfig={{
-                            showPreview: false
-                        }}
-                        skinTonesDisabled
-                    />
-                </div>
+            <PopoverContent className="w-auto p-0" align="start">
+                <EmojiPicker onEmojiClick={handleEmojiClick} />
             </PopoverContent>
         </Popover>
     )
