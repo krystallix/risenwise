@@ -4,33 +4,16 @@ import * as React from "react"
 import { NavMain } from "@/components/sidebar/nav-main"
 import { NavSecondary } from "@/components/sidebar/nav-secondary"
 import { NavWorkspaces } from "@/components/sidebar/nav-workspaces"
-import { TeamSwitcher } from "@/components/sidebar/team-switcher"
+import { NavUser } from "@/components/sidebar/nav-user"
 import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { Terminal, AudioLines, Inbox, Calendar, Trash2, Blocks, Settings2, MessageCircleQuestion, Search, Sparkles, Home } from "lucide-react"
+import { Inbox, Calendar, Trash2, Blocks, Settings2, MessageCircleQuestion, Search, Sparkles, Home } from "lucide-react"
 
 const data = {
-  teams: [
-    {
-      name: "Acme Inc",
-      logo: <Terminal />,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: <AudioLines />,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: <Terminal />,
-      plan: "Free",
-    },
-  ],
   navMain: [
     {
       title: "Search",
@@ -72,7 +55,7 @@ const data = {
     },
     {
       title: "Trash",
-      url: "#",
+      url: "/dashboard/trash",
       icon: <Trash2 />,
     },
     {
@@ -87,7 +70,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <NavUser />
         <NavMain items={data.navMain} />
       </SidebarHeader>
       <SidebarContent>
