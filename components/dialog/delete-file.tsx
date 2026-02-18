@@ -1,17 +1,16 @@
 "use client"
 
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { useWorkspace } from "@/hooks/use-workspace"
-import { Loader2 } from "lucide-react"
+import { Loader2, Trash2 } from "lucide-react"
 import { useState } from "react"
 
 interface DeleteFileDialogProps {
@@ -42,23 +41,26 @@ export default function DeleteFileDialog({
     }
 
     return (
-        <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Delete document?</AlertDialogTitle>
-                    <AlertDialogDescription>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Delete document?</DialogTitle>
+                    <DialogDescription>
                         Are you sure you want to delete <strong>{fileName}</strong>? This action cannot be undone.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                        onClick={(e) => {
-                            e.preventDefault()
-                            handleDelete()
-                        }}
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}
                         disabled={isLoading}
-                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleDelete}
+                        disabled={isLoading}
+                        variant="destructive"
                     >
                         {isLoading ? (
                             <>
@@ -66,11 +68,14 @@ export default function DeleteFileDialog({
                                 Deleting...
                             </>
                         ) : (
-                            "Delete document"
+                            <>
+                                <Trash2 />
+                                Delete Document
+                            </>
                         )}
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }

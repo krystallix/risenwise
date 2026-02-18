@@ -1,15 +1,14 @@
 "use client"
 
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { useWorkspace } from "@/hooks/use-workspace"
 import { Loader2, Trash2 } from "lucide-react"
 import { useState } from "react"
@@ -42,23 +41,26 @@ export default function DeleteFolderDialog({
     }
 
     return (
-        <AlertDialog open={open} onOpenChange={onOpenChange}>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Delete folder?</AlertDialogTitle>
-                    <AlertDialogDescription>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Delete folder?</DialogTitle>
+                    <DialogDescription>
                         Are you sure you want to delete <strong>{folderName}</strong>? This will also delete all documents inside this folder. This action cannot be undone.
-                    </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                        onClick={(e) => {
-                            e.preventDefault()
-                            handleDelete()
-                        }}
+                    </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                    <Button
+                        variant="outline"
+                        onClick={() => onOpenChange(false)}
                         disabled={isLoading}
-                        className="bg-red-500 text-white hover:bg-red-600"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleDelete}
+                        disabled={isLoading}
+                        variant="destructive"
                     >
                         {isLoading ? (
                             <>
@@ -71,9 +73,9 @@ export default function DeleteFolderDialog({
                                 Delete folder
                             </>
                         )}
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     )
 }
