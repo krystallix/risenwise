@@ -5,25 +5,34 @@ import { Folder, Item, PendingOperation } from '@/lib/types'
 import * as folderQueries from '@/lib/supabase/folders'
 import * as itemQueries from '@/lib/supabase/items'
 import { toast } from "sonner"
+import { createClient } from '@/lib/supabase/client'
 
+const supabase = createClient()
 interface WorkspaceStore {
     folders: Folder[]
     items: Item[]
     pendingOperations: Map<string, PendingOperation>
 
+    // Folder operations
     createFolder: (name: string, icon: string, parentId?: string | null) => Promise<void>
     updateFolder: (id: string, updates: Partial<Folder>) => Promise<void>
     deleteFolder: (id: string) => Promise<void>
+    reorderFolders: (folders: Folder[]) => Promise<void>
 
-    createItem: (name: string, icon: string, folderId: string | null) => Promise<void>
+    // Item operations
+    createItem: (name: string, emoji: string, folderId: string | null) => Promise<void>
     updateItem: (id: string, updates: Partial<Item>) => Promise<void>
     deleteItem: (id: string) => Promise<void>
     moveItem: (id: string, folderId: string | null) => Promise<void>
     archiveItem: (id: string) => Promise<void>
+    reorderItems: (items: Item[]) => Promise<void>
+    moveItemToFolder: (itemId: string, targetFolderId: string | null) => Promise<void>
 
+    // Fetch operations
     fetchFolders: () => Promise<void>
     fetchItems: (folderId?: string | null) => Promise<void>
 
+    // Utility
     setPending: (id: string, operation: PendingOperation) => void
     removePending: (id: string) => void
 }
@@ -49,12 +58,15 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         })
     },
 
+    // ==================== FOLDER OPERATIONS ====================
+
     createFolder: async (name, icon, parentId = null) => {
         const tempId = `temp-folder-${Date.now()}`
         const optimisticFolder: Folder = {
             id: tempId,
             name,
             icon,
+            is_active: true,
             parent_id: parentId,
             position: get().folders.length,
             is_favorite: false,
@@ -62,6 +74,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
             user_id: ''
         }
 
+        // Optimistic update
         set(state => ({
             folders: [...state.folders, optimisticFolder]
         }))
@@ -75,6 +88,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
                 optimisticFolder.position
             )
 
+            // Replace temp dengan real data
             set(state => ({
                 folders: state.folders.map(f =>
                     f.id === tempId ? data : f
@@ -87,6 +101,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         } catch (error) {
             console.error('Failed to create folder:', error)
 
+            // Rollback
             set(state => ({
                 folders: state.folders.filter(f => f.id !== tempId)
             }))
@@ -100,6 +115,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         const originalFolder = get().folders.find(f => f.id === id)
         if (!originalFolder) return
 
+        // Optimistic update
         set(state => ({
             folders: state.folders.map(f =>
                 f.id === id ? { ...f, ...updates } : f
@@ -111,11 +127,12 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
             await folderQueries.updateFolder(id, updates)
 
             get().removePending(id)
-            toast.success("Folder updated successfully")
+            // toast.success("Folder updated successfully")
 
         } catch (error) {
             console.error('Failed to update folder:', error)
 
+            // Rollback
             set(state => ({
                 folders: state.folders.map(f =>
                     f.id === id ? originalFolder : f
@@ -131,6 +148,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         const originalFolder = get().folders.find(f => f.id === id)
         if (!originalFolder) return
 
+        // Optimistic delete
         set(state => ({
             folders: state.folders.filter(f => f.id !== id)
         }))
@@ -145,6 +163,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         } catch (error) {
             console.error('Failed to delete folder:', error)
 
+            // Rollback
             set(state => ({
                 folders: [...state.folders, originalFolder]
             }))
@@ -154,21 +173,48 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         }
     },
 
-    createItem: async (name, icon, folderId) => {
+    reorderFolders: async (reorderedFolders) => {
+        const originalFolders = get().folders
+
+        // Optimistic update
+        set({ folders: reorderedFolders })
+
+        try {
+            const updates = reorderedFolders.map((folder, index) => ({
+                id: folder.id,
+                position: index
+            }))
+
+            await folderQueries.reorderFolders(updates)
+
+        } catch (error) {
+            console.error('Failed to reorder folders:', error)
+
+            // Rollback
+            set({ folders: originalFolders })
+            toast.error("Failed to reorder folders")
+        }
+    },
+
+    // ==================== ITEM OPERATIONS ====================
+
+    createItem: async (name, emoji, folderId) => {
         const tempId = `temp-item-${Date.now()}`
         const optimisticItem: Item = {
             id: tempId,
             name,
-            icon,
+            icon: emoji,
+            description: '',
             folder_id: folderId,
             content: { type: 'doc', content: [] },
-            position: get().items.length,
+            position: get().items.filter(i => i.folder_id === folderId).length,
             is_favorite: false,
             is_archived: false,
             created_at: new Date().toISOString(),
             user_id: ''
         }
 
+        // Optimistic update
         set(state => ({
             items: [...state.items, optimisticItem]
         }))
@@ -177,11 +223,12 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         try {
             const data = await itemQueries.createItem(
                 name,
-                icon,
+                emoji,
                 folderId,
                 optimisticItem.position
             )
 
+            // Replace temp dengan real data
             set(state => ({
                 items: state.items.map(i =>
                     i.id === tempId ? data : i
@@ -194,6 +241,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         } catch (error) {
             console.error('Failed to create item:', error)
 
+            // Rollback
             set(state => ({
                 items: state.items.filter(i => i.id !== tempId)
             }))
@@ -207,6 +255,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         const originalItem = get().items.find(i => i.id === id)
         if (!originalItem) return
 
+        // Optimistic update
         set(state => ({
             items: state.items.map(i =>
                 i.id === id ? { ...i, ...updates } : i
@@ -221,6 +270,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         } catch (error) {
             console.error('Failed to update item:', error)
 
+            // Rollback
             set(state => ({
                 items: state.items.map(i =>
                     i.id === id ? originalItem : i
@@ -236,6 +286,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         const originalItem = get().items.find(i => i.id === id)
         if (!originalItem) return
 
+        // Optimistic delete
         set(state => ({
             items: state.items.filter(i => i.id !== id)
         }))
@@ -250,6 +301,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         } catch (error) {
             console.error('Failed to delete item:', error)
 
+            // Rollback
             set(state => ({
                 items: [...state.items, originalItem]
             }))
@@ -263,6 +315,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         const originalItem = get().items.find(i => i.id === id)
         if (!originalItem) return
 
+        // Optimistic move
         set(state => ({
             items: state.items.map(i =>
                 i.id === id ? { ...i, folder_id: folderId } : i
@@ -279,6 +332,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         } catch (error) {
             console.error('Failed to move item:', error)
 
+            // Rollback
             set(state => ({
                 items: state.items.map(i =>
                     i.id === id ? originalItem : i
@@ -294,6 +348,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         const originalItem = get().items.find(i => i.id === id)
         if (!originalItem) return
 
+        // Optimistic archive
         set(state => ({
             items: state.items.map(i =>
                 i.id === id ? { ...i, is_archived: true } : i
@@ -310,6 +365,7 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         } catch (error) {
             console.error('Failed to archive item:', error)
 
+            // Rollback
             set(state => ({
                 items: state.items.map(i =>
                     i.id === id ? originalItem : i
@@ -321,8 +377,65 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
         }
     },
 
+    reorderItems: async (reorderedItems) => {
+        const originalItems = get().items
+
+        // Optimistic update
+        set({ items: reorderedItems })
+
+        try {
+            const updates = reorderedItems.map((item, index) => ({
+                id: item.id,
+                position: index,
+                folder_id: item.folder_id
+            }))
+
+            await itemQueries.reorderItems(updates)
+
+        } catch (error) {
+            console.error('Failed to reorder items:', error)
+
+            // Rollback
+            set({ items: originalItems })
+            toast.error("Failed to reorder items")
+        }
+    },
+
+    moveItemToFolder: async (itemId, targetFolderId) => {
+        const originalItems = get().items
+        const item = originalItems.find(i => i.id === itemId)
+        if (!item) return
+
+        // Optimistic update
+        set(state => ({
+            items: state.items.map(i =>
+                i.id === itemId ? { ...i, folder_id: targetFolderId } : i
+            )
+        }))
+
+        try {
+            await itemQueries.moveItem(itemId, targetFolderId)
+            toast.success("Document moved successfully")
+
+        } catch (error) {
+            console.error('Failed to move item:', error)
+
+            // Rollback
+            set({ items: originalItems })
+            toast.error("Failed to move document")
+        }
+    },
+
+    // ==================== FETCH OPERATIONS ====================
+
     fetchFolders: async () => {
         try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                console.log('User not authenticated')
+                return
+            }
+
             const data = await folderQueries.getFolders()
             set({ folders: data })
         } catch (error) {
@@ -333,6 +446,12 @@ export const useWorkspace = create<WorkspaceStore>((set, get) => ({
 
     fetchItems: async (folderId) => {
         try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) {
+                console.log('User not authenticated')
+                return
+            }
+
             const data = await itemQueries.getItems(folderId)
             set({ items: data })
         } catch (error) {
