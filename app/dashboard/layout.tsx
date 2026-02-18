@@ -1,16 +1,11 @@
 import { AppSidebar } from "@/components/sidebar/app-sidebar"
-import {
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbList,
-    BreadcrumbPage,
-} from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import {
     SidebarInset,
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { UrlBreadcrumbs } from "@/components/sidebar/breadcrumbs"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -24,15 +19,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             orientation="vertical"
                             className="mr-2 data-vertical:h-4 data-vertical:self-auto"
                         />
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                <BreadcrumbItem>
-                                    <BreadcrumbPage className="line-clamp-1">
-                                        Project Management & Task Tracking
-                                    </BreadcrumbPage>
-                                </BreadcrumbItem>
-                            </BreadcrumbList>
-                        </Breadcrumb>
+                        <UrlBreadcrumbs />
                     </div>
                 </header>
                 <main className="flex-1 flex flex-col overflow-hidden">
