@@ -129,7 +129,7 @@ export default function FilePage(props: FilePageProps) {
                         <EmojiPicker onEmojiClick={handleEmojiSelect} />
                     </PopoverContent>
                 </Popover>
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-1">
                     <input
                         value={title}
                         onChange={handleTitleChange}
