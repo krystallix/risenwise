@@ -30,7 +30,7 @@ export async function getTrash(): Promise<TrashItem[]> {
     const rawItems = trashItems.data || []
 
     // Hitung berapa item yang ada di dalam folder yang di-trash
-    const items: TrashItem[] = rawItems.map(i => ({
+    const items: TrashItem[] = rawItems.map((i: any) => ({
         id: i.id,
         name: i.name,
         deleted_at: i.deleted_at,
@@ -39,7 +39,7 @@ export async function getTrash(): Promise<TrashItem[]> {
         type: 'item' as const,
     }))
 
-    const folders: TrashItem[] = rawFolders.map(f => ({
+    const folders: TrashItem[] = rawFolders.map((f: any) => ({
         id: f.id,
         name: f.name,
         deleted_at: f.deleted_at,
@@ -47,7 +47,7 @@ export async function getTrash(): Promise<TrashItem[]> {
         folder_id: null,
         type: 'folder' as const,
         // Hitung items yang folder_id-nya sama dengan folder ini
-        children_count: rawItems.filter(i => i.folder_id === f.id).length,
+        children_count: rawItems.filter((i: any) => i.folder_id === f.id).length,
     }))
 
     return [...folders, ...items].sort(
@@ -97,7 +97,7 @@ export async function restoreFolder(id: string) {
 
     if (items && items.length > 0) {
         await Promise.all(
-            items.map(item =>
+            items.map((item: any) =>
                 supabase.rpc('restore_item', { p_item_id: item.id })
             )
         )
