@@ -210,8 +210,6 @@ export function NavWorkspaces() {
             onDragEnd={handleDragEnd}
           >
             <SidebarMenu>
-              {/* Root Items - Items without folder */}
-              {/* Root Items - Items without folder */}
               {rootItems.length > 0 && (
                 <div
                   ref={setRootDropRef}
