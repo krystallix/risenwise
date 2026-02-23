@@ -9,8 +9,8 @@
     "lint": "eslint"
   },
   "engines": {
-  "node": ">=20.0.0"
-},
+    "node": ">=20.0.0"
+  },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
     "@blocknote/core": "^0.46.2",
@@ -23,6 +23,7 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.95.3",
     "@tanstack/react-virtual": "^3.13.18",
+    "@vercel/analytics": "^1.6.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -44,8 +45,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint": "^4.0.0",
+    "eslint-config-next": "^0.2.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
