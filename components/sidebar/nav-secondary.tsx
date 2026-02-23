@@ -11,6 +11,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import Link from "next/link"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function NavSecondary({
   items,
@@ -38,6 +39,12 @@ export function NavSecondary({
               {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
             </SidebarMenuItem>
           ))}
+          <SidebarMenuItem>
+            <div className="flex items-center justify-between px-2 py-1">
+              <span className="text-sm text-muted-foreground">Theme</span>
+              <ThemeToggle />
+            </div>
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
