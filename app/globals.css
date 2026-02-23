@@ -153,3 +153,34 @@
 .bn-block-content.ProseMirror-selectednode > * {
   outline: none !important;
 }
+
+/* BlockNote dark mode — selaraskan dengan warna app */
+.dark .bn-container[data-color-scheme="dark"] {
+  --bn-colors-editor-background: var(--background) !important;
+  --bn-colors-editor-text: var(--foreground) !important;
+  --bn-colors-menu-background: var(--card) !important;
+  --bn-colors-menu-text: var(--card-foreground) !important;
+  --bn-colors-tooltip-background: var(--secondary) !important;
+  --bn-colors-tooltip-text: var(--secondary-foreground) !important;
+  --bn-colors-hovered-background: var(--accent) !important;
+  --bn-colors-hovered-text: var(--accent-foreground) !important;
+  --bn-colors-selected-background: var(--primary) !important;
+  --bn-colors-selected-text: var(--primary-foreground) !important;
+  --bn-colors-disabled-background: var(--muted) !important;
+  --bn-colors-disabled-text: var(--muted-foreground) !important;
+  --bn-colors-shadow: oklch(0 0 0 / 50%) !important;
+  --bn-colors-border: var(--border) !important;
+  --bn-colors-side-menu: var(--muted-foreground) !important;
+}
+
+/* BlockNote light mode — selaraskan dengan warna app */
+.bn-container[data-color-scheme="light"] {
+  --bn-colors-editor-background: var(--background) !important;
+  --bn-colors-editor-text: var(--foreground) !important;
+  --bn-colors-menu-background: var(--card) !important;
+  --bn-colors-menu-text: var(--card-foreground) !important;
+  --bn-colors-hovered-background: var(--accent) !important;
+  --bn-colors-hovered-text: var(--accent-foreground) !important;
+  --bn-colors-border: var(--border) !important;
+  --bn-colors-side-menu: var(--muted-foreground) !important;
+}
