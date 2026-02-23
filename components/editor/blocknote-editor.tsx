@@ -24,7 +24,7 @@ export function BlockNoteEditorComponent({
     onChange,
     editable = true
 }: BlockNoteEditorProps) {
-    const { theme } = useTheme()
+    const { resolvedTheme } = useTheme()
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
@@ -98,7 +98,7 @@ export function BlockNoteEditorComponent({
                 className="custom-editor"
                 editor={editor}
                 editable={editable}
-                theme={theme === "dark" ? "dark" : "light"}
+                theme={resolvedTheme === "dark" ? "dark" : "light"}
                 slashMenu={false}
                 onChange={() => {
                     if (onChange) {
