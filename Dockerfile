@@ -27,10 +27,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 USER nextjs
 ENV NODE_ENV=production
-ENV PORT=3112
+ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-EXPOSE 3112
+EXPOSE 3000
 
 # Standalone CMD (fix next start error)
 CMD ["node", "server.js"]
